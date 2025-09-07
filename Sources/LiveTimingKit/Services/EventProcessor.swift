@@ -65,23 +65,23 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
         //print("*** - Parsing event \(event.topic)")
         switch Topic(rawValue: event.topic) {
         case .timingData:
-            let timingData = try! event.payload.to(TimingData.self, encoder: encoder, decoder: decoder)
+            let timingData = try event.payload.to(TimingData.self, encoder: encoder, decoder: decoder)
             apply(.timingData(timingData))
 
         case .heartbeat:
-            let heartbeat = try! event.payload.to(Heartbeat.self, encoder: encoder, decoder: decoder)
+            let heartbeat = try event.payload.to(Heartbeat.self, encoder: encoder, decoder: decoder)
             apply(.heartbeat(heartbeat))
             
         case .timingAppData:
-            let timingAppData = try! event.payload.to(TimingAppData.self, encoder: encoder, decoder: decoder)
+            let timingAppData = try event.payload.to(TimingAppData.self, encoder: encoder, decoder: decoder)
             apply(.timingAppData(timingAppData))
             
         case .driverList:
-            let driverList = try! event.payload.to(DriverList.self, encoder: encoder, decoder: decoder)
+            let driverList = try event.payload.to(DriverList.self, encoder: encoder, decoder: decoder)
             apply(.driverList(driverList))
 
         case .carData:
-            let cardDate = try! event.payload.to(CarData.self, encoder: encoder, decoder: decoder)
+            let cardDate = try event.payload.to(CarData.self, encoder: encoder, decoder: decoder)
             apply(.carData(cardDate))
             
         case .carDataZ:
@@ -89,7 +89,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             //print("*** TO BE PARSE: carDataZ")
             
         case .position:
-            let positionData = try! event.payload.to(PositionData.self, encoder: encoder, decoder: decoder)
+            let positionData = try event.payload.to(PositionData.self, encoder: encoder, decoder: decoder)
             apply(.position(positionData))
             
         case .positionZ:
@@ -102,59 +102,59 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             apply(.positionZ(positionZData))
 
         case .weatherData:
-            let weatherData = try! event.payload.to(WeatherData.self, encoder: encoder, decoder: decoder)
+            let weatherData = try event.payload.to(WeatherData.self, encoder: encoder, decoder: decoder)
             apply(.weather(weatherData))
             
         case .timingStats:
-            let timingStats = try! event.payload.to(TimingStats.self, encoder: encoder, decoder: decoder)
+            let timingStats = try event.payload.to(TimingStats.self, encoder: encoder, decoder: decoder)
             apply(.timingStats(timingStats))
             
         case .lapCount:
-            let lapCount = try! event.payload.to(LapCount.self, encoder: encoder, decoder: decoder)
+            let lapCount = try event.payload.to(LapCount.self, encoder: encoder, decoder: decoder)
             apply(.lapCount(lapCount))
             
         case .sessionInfo:
-            let sessionInfo = try! event.payload.to(SessionInfo.self, encoder: encoder, decoder: decoder)
+            let sessionInfo = try event.payload.to(SessionInfo.self, encoder: encoder, decoder: decoder)
             apply(.sessionInfo(sessionInfo))
 
         case .raceControlMessages:
-            let messages = try! event.payload.to(RaceControlMessages.self, encoder: encoder, decoder: decoder)
+            let messages = try event.payload.to(RaceControlMessages.self, encoder: encoder, decoder: decoder)
             apply(.raceControlMessages(messages))
 
         case .teamRadio:
-            let teamRadio = try! event.payload.to(TeamRadio.self, encoder: encoder, decoder: decoder)
+            let teamRadio = try event.payload.to(TeamRadio.self, encoder: encoder, decoder: decoder)
             apply(.teamRadio(teamRadio))
 
         case .tyreStintSeries:
-            let series = try! event.payload.to(TyreStintSeries.self, encoder: encoder, decoder: decoder)
+            let series = try event.payload.to(TyreStintSeries.self, encoder: encoder, decoder: decoder)
             apply(.tyreStintSeries(series))
 
         case .trackStatus:
-            let status = try! event.payload.to(TrackStatus.self, encoder: encoder, decoder: decoder)
+            let status = try event.payload.to(TrackStatus.self, encoder: encoder, decoder: decoder)
             apply(.trackStatus(status))
 
         case .topThree:
-            let topThree = try! event.payload.to(TopThree.self, encoder: encoder, decoder: decoder)
+            let topThree = try event.payload.to(TopThree.self, encoder: encoder, decoder: decoder)
             apply(.topThree(topThree))
 
         case .sessionData:
-            let sessionData = try! event.payload.to(SessionData.self, encoder: encoder, decoder: decoder)
+            let sessionData = try event.payload.to(SessionData.self, encoder: encoder, decoder: decoder)
             apply(.sessionData(sessionData))
 
         case .extrapolatedClock:
-            let clock = try! event.payload.to(ExtrapolatedClock.self, encoder: encoder, decoder: decoder)
+            let clock = try event.payload.to(ExtrapolatedClock.self, encoder: encoder, decoder: decoder)
             apply(.extrapolatedClock(clock))
 
         case .championshipPrediction:
-            let prediction = try! event.payload.to(ChampionshipPrediction.self, encoder: encoder, decoder: decoder)
+            let prediction = try event.payload.to(ChampionshipPrediction.self, encoder: encoder, decoder: decoder)
             apply(.championshipPrediction(prediction))
 
         case .pitStopSeries:
-            let series = try! event.payload.to(PitStopSeries.self, encoder: encoder, decoder: decoder)
+            let series = try event.payload.to(PitStopSeries.self, encoder: encoder, decoder: decoder)
             apply(.pitStopSeries(series))
 
         case .pitLaneTimeCollection:
-            let collection = try! event.payload.to(PitLaneTimeCollection.self, encoder: encoder, decoder: decoder)
+            let collection = try event.payload.to(PitLaneTimeCollection.self, encoder: encoder, decoder: decoder)
             apply(.pitLaneTimeCollection(collection))
 
         default:

@@ -46,8 +46,8 @@ public struct DriverList: Codable, Sendable {
                 if driver.tla != nil {
                     map[key.stringValue]?.tla = driver.tla
                 }
-                if driver.line != nil {
-                    map[key.stringValue]?.line = driver.line
+                if let line = driver.line {
+                    map[key.stringValue]?.line = line
                 }
                 if driver.teamName != nil {
                     map[key.stringValue]?.teamName = driver.teamName
@@ -70,10 +70,26 @@ public struct DriverList: Codable, Sendable {
                 if driver.publicIDRight != nil {
                     map[key.stringValue]?.publicIDRight = driver.publicIDRight
                 }
+                if driver.isSelected != nil {
+                    map[key.stringValue]?.isSelected = driver.isSelected
+                } else if map[key.stringValue]?.isSelected == nil {
+                    map[key.stringValue]?.isSelected = true
+                }
             }
         }
         self.drivers = map
         self.kf = kfValue
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: KFKey.self)
+        for (key, value) in drivers {
+            guard let codingKey = KFKey(stringValue: key) else { continue }
+            try container.encode(value, forKey: codingKey)
+        }
+        if let kfKey = KFKey(stringValue: "_kf") {
+            try container.encode(kf, forKey: kfKey)
+        }
     }
 }
 
@@ -98,6 +114,8 @@ extension DriverList {
                 if let v = newLine.reference { existing.reference = v }
                 if let v = newLine.headshotURL { existing.headshotURL = v }
                 if let v = newLine.publicIDRight { existing.publicIDRight = v }
+                if let v = newLine.line { existing.line = v }
+                if let v = newLine.isSelected { existing.isSelected = v }
 
                 drivers[driver] = existing
             } else {

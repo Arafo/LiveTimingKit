@@ -1,7 +1,7 @@
 import Foundation
 
 public struct PositionZ: Codable, Sendable {
-    var position: [PositionData]
+    public var position: [PositionData]
 
     enum CodingKeys: String, CodingKey {
         case position = "Position"

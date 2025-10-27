@@ -33,7 +33,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                 }
 
                 await connection.onClosed { error in
-                    if let error {
+                    if error != nil {
                         continuation.finish()
                     } else {
                         continuation.finish()

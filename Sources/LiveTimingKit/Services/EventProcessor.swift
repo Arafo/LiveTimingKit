@@ -2,7 +2,7 @@ import Foundation
 import NIOCore
 
 public protocol LiveTimingEventProcessor: Actor {
-    var state: LiveTimingState { get async }
+    var state: LiveTimingState { get async }
     func process(snapshot: Envelope) async throws
     func process(event: RawEvent) async throws
 }
@@ -37,8 +37,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
     }
     
     public func process(snapshot: Envelope) async throws {
-        //if let carData = snapshot.carData { state.carData = carData }
-        //if let positionData = snapshot.positionData { state.positions = positionData }
+        if let carData = snapshot.carData { state.carData = carData }
         if let heartbeat = snapshot.heartbeat { state.heartbeat = heartbeat }
         if let extrapolatedClock = snapshot.extrapolatedClock { state.extrapolatedClock = extrapolatedClock }
         if let topThree = snapshot.topThree { state.topThree = topThree }
@@ -54,6 +53,10 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
         if let timingData = snapshot.timingData { state.timingData = timingData }
         if let teamRadio = snapshot.teamRadio { state.teamRadio = teamRadio }
         if let tyreStintSeries = snapshot.tyreStintSeries { state.tyreStintSeries = tyreStintSeries }
+        if let championshipPrediction = snapshot.championshipPrediction { state.championshipPrediction = championshipPrediction }
+        if let pitStopSeries = snapshot.pitStopSeries { state.pitStopSeries = pitStopSeries }
+        if let pitLaneTimeCollection = snapshot.pitLaneTimeCollection { state.pitLaneTimeCollection = pitLaneTimeCollection }
+        if let positionZ = snapshot.positionZ { state.positionZ = positionZ }
     }
 
     public func process(event: RawEvent) async throws {
@@ -112,6 +115,46 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             let sessionInfo = try! event.payload.to(SessionInfo.self)
             apply(.sessionInfo(sessionInfo))
 
+        case .raceControlMessages:
+            let messages = try! event.payload.to(RaceControlMessages.self)
+            apply(.raceControlMessages(messages))
+
+        case .teamRadio:
+            let teamRadio = try! event.payload.to(TeamRadio.self)
+            apply(.teamRadio(teamRadio))
+
+        case .tyreStintSeries:
+            let series = try! event.payload.to(TyreStintSeries.self)
+            apply(.tyreStintSeries(series))
+
+        case .trackStatus:
+            let status = try! event.payload.to(TrackStatus.self)
+            apply(.trackStatus(status))
+
+        case .topThree:
+            let topThree = try! event.payload.to(TopThree.self)
+            apply(.topThree(topThree))
+
+        case .sessionData:
+            let sessionData = try! event.payload.to(SessionData.self)
+            apply(.sessionData(sessionData))
+
+        case .extrapolatedClock:
+            let clock = try! event.payload.to(ExtrapolatedClock.self)
+            apply(.extrapolatedClock(clock))
+
+        case .championshipPrediction:
+            let prediction = try! event.payload.to(ChampionshipPrediction.self)
+            apply(.championshipPrediction(prediction))
+
+        case .pitStopSeries:
+            let series = try! event.payload.to(PitStopSeries.self)
+            apply(.pitStopSeries(series))
+
+        case .pitLaneTimeCollection:
+            let collection = try! event.payload.to(PitLaneTimeCollection.self)
+            apply(.pitLaneTimeCollection(collection))
+
         default:
             print("*** Topic Id not parsed: \(event.topic)")
         }
@@ -120,8 +163,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
     private func apply(_ message: LiveTimingMessage) {
         switch message {
         case .fullSnapshot(let snapshot):
-            //if let carData = snapshot.carData { state.carData = carData }
-            //if let positionData = snapshot.positionData { state.positions = positionData }
+            if let carData = snapshot.carData { state.carData = carData }
             if let heartbeat = snapshot.heartbeat { state.heartbeat = heartbeat }
             if let extrapolatedClock = snapshot.extrapolatedClock { state.extrapolatedClock = extrapolatedClock }
             if let topThree = snapshot.topThree { state.topThree = topThree }
@@ -137,6 +179,10 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             if let timingData = snapshot.timingData { state.timingData = timingData }
             if let teamRadio = snapshot.teamRadio { state.teamRadio = teamRadio }
             if let tyreStintSeries = snapshot.tyreStintSeries { state.tyreStintSeries = tyreStintSeries }
+            if let championshipPrediction = snapshot.championshipPrediction { state.championshipPrediction = championshipPrediction }
+            if let pitStopSeries = snapshot.pitStopSeries { state.pitStopSeries = pitStopSeries }
+            if let pitLaneTimeCollection = snapshot.pitLaneTimeCollection { state.pitLaneTimeCollection = pitLaneTimeCollection }
+            if let positionZ = snapshot.positionZ { state.positionZ = positionZ }
 
         case .heartbeat(let hb):
             state.heartbeat = hb
@@ -156,14 +202,14 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
         case .carData(let delta):
             state.carData.merge(with: delta)
 
-        case .position(let delta):
+        case .position:
             break
             //state.positions.merge(with: delta)
             
         case .positionZ(let delta):
             state.positionZ.merge(with: delta)
             
-        case .carDataZ(let delta):
+        case .carDataZ:
             print("*** carDataZ")
             
         case .weather(let delta):
@@ -174,6 +220,66 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             
         case .lapCount(let delta):
             state.lapCount.merge(with: delta)
+
+        case .raceControlMessages(let delta):
+            if var existing = state.raceControlMessages {
+                existing.merge(with: delta)
+                state.raceControlMessages = existing
+            } else {
+                state.raceControlMessages = delta
+            }
+
+        case .teamRadio(let delta):
+            if var existing = state.teamRadio {
+                existing.merge(with: delta)
+                state.teamRadio = existing
+            } else {
+                state.teamRadio = delta
+            }
+
+        case .tyreStintSeries(let delta):
+            if var existing = state.tyreStintSeries {
+                existing.merge(with: delta)
+                state.tyreStintSeries = existing
+            } else {
+                state.tyreStintSeries = delta
+            }
+
+        case .trackStatus(let delta):
+            state.trackStatus = delta
+
+        case .topThree(let delta):
+            state.topThree = delta
+
+        case .sessionData(let delta):
+            state.sessionData = delta
+
+        case .extrapolatedClock(let delta):
+            state.extrapolatedClock = delta
+
+        case .championshipPrediction(let delta):
+            if var existing = state.championshipPrediction {
+                existing.merge(with: delta)
+                state.championshipPrediction = existing
+            } else {
+                state.championshipPrediction = delta
+            }
+
+        case .pitStopSeries(let delta):
+            if var existing = state.pitStopSeries {
+                existing.merge(with: delta)
+                state.pitStopSeries = existing
+            } else {
+                state.pitStopSeries = delta
+            }
+
+        case .pitLaneTimeCollection(let delta):
+            if var existing = state.pitLaneTimeCollection {
+                existing.merge(with: delta)
+                state.pitLaneTimeCollection = existing
+            } else {
+                state.pitLaneTimeCollection = delta
+            }
 
         case .raw:
             break

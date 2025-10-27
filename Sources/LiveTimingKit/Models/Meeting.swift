@@ -1,11 +1,13 @@
 import Foundation
 
 public struct Meeting: Codable, Sendable {
-    public let key: Int
-    public let name, officialName, location: String
-    public let number: Int
-    public let country: Country
-    public let circuit: Circuit
+    public var key: Int?
+    public var name: String?
+    public var officialName: String?
+    public var location: String?
+    public var number: Int?
+    public var country: Country?
+    public var circuit: Circuit?
 
     enum CodingKeys: String, CodingKey {
         case key = "Key"

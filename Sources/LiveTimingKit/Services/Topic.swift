@@ -20,4 +20,5 @@ public enum Topic: String, Equatable, Hashable, CaseIterable, Decodable {
     case teamRadio = "TeamRadio"
     case tyreStintSeries = "TyreStintSeries"
     case pitStopSeries = "PitStopSeries"
+    case pitLaneTimeCollection = "PitLaneTimeCollection"
 }

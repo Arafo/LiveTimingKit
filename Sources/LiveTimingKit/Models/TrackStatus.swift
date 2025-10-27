@@ -1,9 +1,9 @@
 import Foundation
 
 public struct TrackStatus: Codable, Sendable {
-    public let status: String
-    public let message: String
-    public let kf: Bool?
+    public var status: String?
+    public var message: String?
+    public var kf: Bool?
 
     enum CodingKeys: String, CodingKey {
         case status = "Status"

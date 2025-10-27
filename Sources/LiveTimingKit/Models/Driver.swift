@@ -5,7 +5,7 @@ public struct Driver: Codable, Sendable {
     public var broadcastName: String?
     public var fullName: String?
     public var tla: String?
-    public var line: Int
+    public var line: Int?
     public var teamName: String?
     public var teamColour: String?
     public var firstName: String?
@@ -13,6 +13,7 @@ public struct Driver: Codable, Sendable {
     public var reference: String?
     public var headshotURL: String?
     public var publicIDRight: String?
+    public var isSelected: Bool? = true
 
     enum CodingKeys: String, CodingKey {
         case racingNumber = "RacingNumber"
@@ -27,5 +28,6 @@ public struct Driver: Codable, Sendable {
         case reference = "Reference"
         case headshotURL = "HeadshotUrl"
         case publicIDRight = "PublicIdRight"
+        case isSelected = "IsSelected"
     }
 }

@@ -1,8 +1,9 @@
 import Foundation
 
 public struct ExtrapolatedClock: Codable, Sendable {
-    public let utc, remaining: String
-    public let extrapolating: Bool
+    public var utc: String?
+    public var remaining: String?
+    public var extrapolating: Bool?
 
     enum CodingKeys: String, CodingKey {
         case utc = "Utc"
@@ -13,6 +14,6 @@ public struct ExtrapolatedClock: Codable, Sendable {
 
 extension ExtrapolatedClock {
     public static var empty: Self {
-        .init(utc: "", remaining: "", extrapolating: false)
+        .init(utc: nil, remaining: nil, extrapolating: nil)
     }
 }

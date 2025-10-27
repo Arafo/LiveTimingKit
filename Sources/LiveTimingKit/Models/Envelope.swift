@@ -16,6 +16,12 @@ public struct Envelope: Codable, Sendable {
     public let timingData: TimingData?
     public let teamRadio: TeamRadio?
     public let tyreStintSeries: TyreStintSeries?
+    public let championshipPrediction: ChampionshipPrediction?
+    public let pitStopSeries: PitStopSeries?
+    public let pitLaneTimeCollection: PitLaneTimeCollection?
+    public let carData: CarData?
+    public let position: PositionData?
+    public let positionZ: PositionZ?
 
     enum CodingKeys: String, CodingKey {
         case heartbeat = "Heartbeat"
@@ -33,5 +39,11 @@ public struct Envelope: Codable, Sendable {
         case timingData = "TimingData"
         case teamRadio = "TeamRadio"
         case tyreStintSeries = "TyreStintSeries"
+        case championshipPrediction = "ChampionshipPrediction"
+        case pitStopSeries = "PitStopSeries"
+        case pitLaneTimeCollection = "PitLaneTimeCollection"
+        case carData = "CarData"
+        case position = "Position"
+        case positionZ = "Position.z"
     }
 }

@@ -17,6 +17,9 @@ public struct LiveTimingState: Codable, Sendable {
         timingData: TimingData = .empty,
         teamRadio: TeamRadio? = nil,
         tyreStintSeries: TyreStintSeries? = nil,
+        championshipPrediction: ChampionshipPrediction? = nil,
+        pitStopSeries: PitStopSeries? = nil,
+        pitLaneTimeCollection: PitLaneTimeCollection? = nil,
         carData: CarData = .empty,
         positionZ: PositionZ = .empty
     ) {
@@ -35,6 +38,9 @@ public struct LiveTimingState: Codable, Sendable {
         self.timingData = timingData
         self.teamRadio = teamRadio
         self.tyreStintSeries = tyreStintSeries
+        self.championshipPrediction = championshipPrediction
+        self.pitStopSeries = pitStopSeries
+        self.pitLaneTimeCollection = pitLaneTimeCollection
         self.carData = carData
         self.positionZ = positionZ
     }
@@ -54,6 +60,9 @@ public struct LiveTimingState: Codable, Sendable {
     public var timingData: TimingData = .empty
     public var teamRadio: TeamRadio?
     public var tyreStintSeries: TyreStintSeries?
+    public var championshipPrediction: ChampionshipPrediction?
+    public var pitStopSeries: PitStopSeries?
+    public var pitLaneTimeCollection: PitLaneTimeCollection?
     public var carData: CarData = .empty
     public var positionZ: PositionZ = .empty
 }
@@ -74,13 +83,13 @@ extension TimingAppData {
 
 extension TrackStatus {
     public static var empty: Self {
-        .init(status: "", message: "", kf: false)
+        .init(status: nil, message: nil, kf: false)
     }
 }
 
 extension RaceControlMessages {
     public static var empty: Self {
-        .init(messages: [], kf: false)
+        .init(messages: [:], kf: false)
     }
 }
 
@@ -110,12 +119,30 @@ extension SessionData {
 
 extension TeamRadio {
     public static var empty: Self {
-        .init(captures: [])
+        .init(captures: [:])
     }
 }
 
 extension TyreStintSeries {
     public static var empty: Self {
         .init(stints: [:])
+    }
+}
+
+extension ChampionshipPrediction {
+    public static var empty: Self {
+        .init()
+    }
+}
+
+extension PitStopSeries {
+    public static var empty: Self {
+        .init()
+    }
+}
+
+extension PitLaneTimeCollection {
+    public static var empty: Self {
+        .init()
     }
 }

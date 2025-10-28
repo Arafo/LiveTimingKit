@@ -1,7 +1,20 @@
 import Foundation
 
+public enum StringDecodingError: Error {
+    case unableToEncode(String, encoding: String.Encoding)
+}
+
+extension StringDecodingError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case let .unableToEncode(string, encoding):
+            return "Unable to encode \(string) using encoding \(encoding)."
+        }
+    }
+}
+
 extension AnyCodable {
-    
+
     func to<T: Decodable>(
         _ type: T.Type,
         encoder: JSONEncoder = .init(),
@@ -30,8 +43,8 @@ extension String {
         decoder: JSONDecoder = .init(),
         encoding: String.Encoding = .utf8
     ) throws -> T {
-        guard let data = try self.data(using: encoding) else {
-            fatalError()
+        guard let data = self.data(using: encoding) else {
+            throw StringDecodingError.unableToEncode(self, encoding: encoding)
         }
         return try decoder.decode(type, from: data)
     }

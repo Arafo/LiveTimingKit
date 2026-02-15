@@ -34,8 +34,8 @@ public actor LiveTimingSignalRClient: LiveTimingService {
         AsyncStream { continuation in
             self.continuation = continuation
             Task { [connection] in
-                self.logInfo("Opening SignalR stream.", metadata: [
-                    "hub_url": self.hubURL
+                self.logger.info("Opening SignalR stream.", metadata: [
+                    "hub_url": .string(self.hubURL)
                 ])
                 let closeLogger = self.logger
 
@@ -63,45 +63,45 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                 }
                 
                 do {
-                    self.logInfo("Starting SignalR connection.")
+                    self.logger.info("Starting SignalR connection.")
                     try await connection.start()
-                    self.logInfo("SignalR connection started.")
+                    self.logger.info("SignalR connection started.")
 
                     let topics = Topic.allCases.compactMap { $0.rawValue }
-                    self.logInfo(
+                    self.logger.info(
                         "Subscribing to SignalR topics.",
                         metadata: [
-                            "topics_count": "\(topics.count)"
+                            "topics_count": .string("\(topics.count)")
                         ]
                     )
                     let fullSnapshot: Envelope = try await connection.invoke(
                         method: "Subscribe",
                         arguments: topics
                     )
-                    self.logInfo("SignalR subscribe snapshot received.")
+                    self.logger.info("SignalR subscribe snapshot received.")
 
                     do {
                         try await self.eventProcessor.process(snapshot: fullSnapshot)
-                        self.logInfo(
+                        self.logger.info(
                             "SignalR subscribe snapshot parsed.",
                             metadata: [
-                                "session_key": fullSnapshot.sessionInfo?.key.map(String.init) ?? "nil",
-                                "meeting_key": fullSnapshot.sessionInfo?.meeting?.key.map(String.init) ?? "nil"
+                                "session_key": .string(fullSnapshot.sessionInfo?.key.map(String.init) ?? "nil"),
+                                "meeting_key": .string(fullSnapshot.sessionInfo?.meeting?.key.map(String.init) ?? "nil")
                             ]
                         )
                     } catch {
-                        self.logError(
+                        self.logger.error(
                             "Failed to parse SignalR subscribe snapshot.",
                             metadata: [
-                                "error": error.localizedDescription
+                                "error": .string(error.localizedDescription)
                             ]
                         )
                     }
                 } catch {
-                    self.logError(
+                    self.logger.error(
                         "Failed to start/subscribe SignalR connection.",
                         metadata: [
-                            "error": error.localizedDescription
+                            "error": .string(error.localizedDescription)
                         ]
                     )
                     continuation.finish()
@@ -120,11 +120,11 @@ public actor LiveTimingSignalRClient: LiveTimingService {
 
         if firstEventAt == nil {
             firstEventAt = Date()
-            logInfo(
+            logger.info(
                 "Received first SignalR feed event.",
                 metadata: [
-                    "topic": topic,
-                    "feed_time": feedTime
+                    "topic": .string(topic),
+                    "feed_time": .string(feedTime)
                 ]
             )
         }
@@ -134,26 +134,26 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                 event: .init(topic: topic, payload: payload, timestamp: .now)
             )
             if receivedEventCount <= 3 || receivedEventCount % 50 == 0 {
-                logInfo(
+                logger.info(
                     "Parsed SignalR feed event.",
                     metadata: [
-                        "topic": topic,
-                        "feed_time": feedTime,
-                        "received_events": "\(receivedEventCount)"
+                        "topic": .string(topic),
+                        "feed_time": .string(feedTime),
+                        "received_events": .string("\(receivedEventCount)")
                     ]
                 )
             }
         } catch {
             parseErrorCount += 1
-            logError(
+            logger.error(
                 "Failed to parse SignalR feed event.",
                 metadata: [
-                    "topic": topic,
-                    "feed_time": feedTime,
-                    "error": error.localizedDescription,
-                    "payload_summary": payloadSummary(payload),
-                    "received_events": "\(receivedEventCount)",
-                    "parse_errors": "\(parseErrorCount)"
+                    "topic": .string(topic),
+                    "feed_time": .string(feedTime),
+                    "error": .string(error.localizedDescription),
+                    "payload_summary": .string(payloadSummary(payload)),
+                    "received_events": .string("\(receivedEventCount)"),
+                    "parse_errors": .string("\(parseErrorCount)")
                 ]
             )
         }
@@ -179,27 +179,4 @@ public actor LiveTimingSignalRClient: LiveTimingService {
         }
     }
 
-    private func logDebug(_ message: String, metadata: [String: String] = [:]) {
-        logger.debug(.init(stringLiteral: message), metadata: toLoggerMetadata(metadata))
-    }
-
-    private func logInfo(_ message: String, metadata: [String: String] = [:]) {
-        logger.info(.init(stringLiteral: message), metadata: toLoggerMetadata(metadata))
-    }
-
-    private func logWarning(_ message: String, metadata: [String: String] = [:]) {
-        logger.warning(.init(stringLiteral: message), metadata: toLoggerMetadata(metadata))
-    }
-
-    private func logError(_ message: String, metadata: [String: String] = [:]) {
-        logger.error(.init(stringLiteral: message), metadata: toLoggerMetadata(metadata))
-    }
-
-    private func toLoggerMetadata(_ metadata: [String: String]) -> Logger.Metadata {
-        var output: Logger.Metadata = [:]
-        for (key, value) in metadata {
-            output[key] = .string(value)
-        }
-        return output
-    }
 }

@@ -219,4 +219,6 @@
 
 public protocol LiveTimingService: Actor {
     var eventProcessor: LiveTimingEventProcessor { get async }
+    func stream() async -> AsyncStream<LiveTimingState>
+    func stop() async
 }

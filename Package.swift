@@ -13,15 +13,15 @@ let package = Package(
             targets: ["LiveTimingKit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
-        //.package(path: "../../signalr-client-swift")
-        .package(url: "https://github.com/Arafo/signalr-client-swift", branch: "dev")
+        .package(
+            url: "https://github.com/Arafo/signalr-client-swift",
+            revision: "7bba94f88d6af74e91f4ebefdab8062c2666747b"
+        )
     ],
     targets: [
         .target(
             name: "LiveTimingKit",
             dependencies: [
-                .product(name: "Vapor", package: "vapor"),
                 .product(name: "SignalRClient", package: "signalr-client-swift")
             ]),
         .testTarget(

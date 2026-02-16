@@ -1,5 +1,4 @@
 import Foundation
-import NIOCore
 
 public protocol LiveTimingEventProcessor: Actor {
     var state: LiveTimingState { get async }

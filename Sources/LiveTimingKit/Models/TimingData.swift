@@ -1,11 +1,15 @@
 import Foundation
 
 public struct TimingData: Codable, Sendable {
-    public var lines: [String: TimingDataLine]
+    public var lines: [String: TimingDataLine] = [:]
     public var withheld: Bool?
     public var kf: Bool?
 
-    public init(lines: [String: TimingDataLine], withheld: Bool? = nil, kf: Bool? = nil) {
+    public init(
+        lines: [String: TimingDataLine] = [:], 
+        withheld: Bool? = nil, 
+        kf: Bool? = nil
+    ) {
         self.lines = lines
         self.withheld = withheld
         self.kf = kf

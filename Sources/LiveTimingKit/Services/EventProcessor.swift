@@ -1,5 +1,6 @@
 import Foundation
 import NIOCore
+import OSLog
 
 public protocol LiveTimingEventProcessor: Actor {
     var state: LiveTimingState { get async }
@@ -28,6 +29,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
     public var state: LiveTimingState = .init()
     private var encoder: JSONEncoder = .init()
     private var decoder: JSONDecoder = .init()
+    private let logger = Logger(subsystem: "LiveTimingKit", category: "LiveTimingEventProcessor")
     
     //private var state = LiveTimingState()
     //private let continuation: AsyncStream<LiveTimingState>.Continuation
@@ -158,7 +160,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             apply(.pitLaneTimeCollection(collection))
 
         default:
-            print("*** Topic Id not parsed: \(event.topic)")
+            logger.debug("Topic id not parsed: \(event.topic, privacy: .public)")
         }
     }
     
@@ -212,7 +214,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             state.positionZ.merge(with: delta)
             
         case .carDataZ:
-            print("*** carDataZ")
+            logger.debug("Received CarData.z event but no handler is implemented")
             
         case .weather(let delta):
             state.weatherData.merge(with: delta)

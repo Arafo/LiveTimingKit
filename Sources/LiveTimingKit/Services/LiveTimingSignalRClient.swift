@@ -58,4 +58,10 @@ public actor LiveTimingSignalRClient: LiveTimingService {
             }
         }
     }
+
+    public func stop() async {
+        await connection.stop()
+        continuation?.finish()
+        continuation = nil
+    }
 }

@@ -1,13 +1,13 @@
 import Foundation
 
 public struct DriverList: Codable, Sendable {
-    public init(drivers: [String : Driver], kf: Bool) {
+    public init(drivers: [String : Driver], kf: Bool? = nil) {
         self.drivers = drivers
         self.kf = kf
     }
     
     public var drivers: [String: Driver]
-    public let kf: Bool
+    public var kf: Bool?
 
     private struct KFKey: CodingKey {
         var stringValue: String
@@ -25,7 +25,7 @@ public struct DriverList: Codable, Sendable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: KFKey.self)
         var map: [String: Driver] = [:]
-        var kfValue = false
+        var kfValue: Bool?
         for key in container.allKeys {
             if key.stringValue == "_kf" {
                 kfValue = try container.decode(Bool.self, forKey: key)
@@ -88,7 +88,7 @@ public struct DriverList: Codable, Sendable {
             try container.encode(value, forKey: codingKey)
         }
         if let kfKey = KFKey(stringValue: "_kf") {
-            try container.encode(kf, forKey: kfKey)
+            try container.encodeIfPresent(kf, forKey: kfKey)
         }
     }
 }
@@ -101,6 +101,10 @@ extension DriverList {
 
 extension DriverList {
     public mutating func merge(with delta: DriverList) {
+        if let value = delta.kf {
+            kf = value
+        }
+
         for (driver, newLine) in delta.drivers {
             if var existing = drivers[driver] {
                 if let v = newLine.racingNumber { existing.racingNumber = v }

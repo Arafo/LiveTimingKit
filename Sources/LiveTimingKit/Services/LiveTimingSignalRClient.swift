@@ -52,6 +52,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                     try? await self.eventProcessor.process(
                         snapshot: fullSnapshot
                     )
+                    await continuation.yield(self.eventProcessor.state)
                 } catch {
                     continuation.finish()
                 }

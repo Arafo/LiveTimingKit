@@ -1,8 +1,8 @@
 import Foundation
 
 public struct Heartbeat: Codable, Sendable {
-    let utc: String
-    let kf: Bool?
+    public let utc: String
+    public let kf: Bool?
 
     enum CodingKeys: String, CodingKey {
         case utc = "Utc"

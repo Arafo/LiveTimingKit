@@ -1,10 +1,10 @@
 import Foundation
 
 public struct TimingStats: Codable, Sendable {
-    let withheld: Bool?
+    public let withheld: Bool?
     var lines: [String: TimingStatsLine]
-    let sessionType: String?
-    let kf: Bool?
+    public let sessionType: String?
+    public let kf: Bool?
 
     enum CodingKeys: String, CodingKey {
         case withheld = "Withheld"

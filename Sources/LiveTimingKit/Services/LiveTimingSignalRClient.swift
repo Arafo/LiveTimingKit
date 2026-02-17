@@ -4,6 +4,7 @@ import SignalRClient
 public actor LiveTimingSignalRClient: LiveTimingService {
     private let connection: HubConnection
     private var continuation: AsyncStream<LiveTimingState>.Continuation?
+    private var streamTask: Task<Void, Never>?
     public let eventProcessor: LiveTimingEventProcessor
 
     public init(
@@ -20,15 +21,26 @@ public actor LiveTimingSignalRClient: LiveTimingService {
     }
     
     public func stream() async -> AsyncStream<LiveTimingState> {
-        AsyncStream { continuation in
+        await stopCurrentStream()
+
+        return AsyncStream { continuation in
             self.continuation = continuation
-            Task { [connection] in
+            continuation.onTermination = { [weak self] _ in
+                guard let self else { return }
+                Task { await self.stopCurrentStream() }
+            }
+
+            self.streamTask = Task { [connection] in
+                await connection.off(method: "feed")
                 await connection.on("feed") { @Sendable (id: String, data: AnyCodable/*[String: AnyCodable]*/, time: String) in
-                    
-                    try? await self.eventProcessor.process(
-                        event: .init(topic: id, payload: data, timestamp: .now)
-                    )
-                        
+                    do {
+                        try await self.eventProcessor.process(
+                            event: .init(topic: id, payload: data, timestamp: .now)
+                        )
+                    } catch {
+                        return
+                    }
+
                     await continuation.yield(self.eventProcessor.state)
                 }
 
@@ -57,5 +69,13 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                 }
             }
         }
+    }
+
+    private func stopCurrentStream() async {
+        streamTask?.cancel()
+        streamTask = nil
+        await connection.off(method: "feed")
+        await connection.stop()
+        continuation = nil
     }
 }

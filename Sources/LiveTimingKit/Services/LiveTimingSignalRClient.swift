@@ -89,6 +89,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                                 "meeting_key": .string(fullSnapshot.sessionInfo?.meeting?.key.map(String.init) ?? "nil")
                             ]
                         )
+                        await continuation.yield(self.eventProcessor.state)
                     } catch {
                         self.logger.error(
                             "Failed to parse SignalR subscribe snapshot.",

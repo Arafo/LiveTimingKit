@@ -14,11 +14,18 @@ public actor LiveTimingSignalRClient: LiveTimingService {
 
     public init(
         url: String = "https://livetiming.formula1.com/signalrcore",
+        token: String? = nil,
         logger: Logger? = nil
     ) {
+        var connectionOptions = HttpConnectionOptions()
+        connectionOptions.transport = .webSockets
+        if let token, !token.isEmpty {
+            connectionOptions.accessTokenFactory = { token }
+        }
+
         self.hubURL = url
         self.connection = HubConnectionBuilder()
-            .withUrl(url: url, transport: .webSockets)
+            .withUrl(url: url, options: connectionOptions)
             .withAutomaticReconnect(retryDelays: [0, 2, 10, 30])
             .withHubProtocol(hubProtocol: .json)
             .withLogLevel(logLevel: .information)

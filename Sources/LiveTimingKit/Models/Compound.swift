@@ -7,4 +7,5 @@ public enum Compound: String, Codable, Sendable {
     case intermediate = "INTERMEDIATE"
     case wet = "WET"
     case unknown = "UNKNOWN"
+    case testUnknown = "TEST_UNKNOWN"
 }

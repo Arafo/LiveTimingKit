@@ -1,13 +1,30 @@
 {
-  "originHash" : "8e52f27add123a6987b097d85ceab6cb6a2b7826c42847e45e4e21d08a171604",
+  "originHash" : "4d878fd9bfcee0940f4278689ff3255e6cf54a2e0fb534439ea82c6d9f822a07",
   "pins" : [
+    {
+      "identity" : "bitbytedata",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tsolomko/BitByteData",
+      "state" : {
+        "revision" : "cdcdc5177ad536cfb11b95c620f926a81014b7fe",
+        "version" : "2.0.4"
+      }
+    },
     {
       "identity" : "signalr-client-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Arafo/signalr-client-swift",
       "state" : {
-        "branch" : "dev",
         "revision" : "7bba94f88d6af74e91f4ebefdab8062c2666747b"
+      }
+    },
+    {
+      "identity" : "swcompression",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tsolomko/SWCompression.git",
+      "state" : {
+        "revision" : "390e0b0af8dd19a600005a242a89e570ff482e09",
+        "version" : "4.8.6"
       }
     },
     {

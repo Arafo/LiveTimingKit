@@ -28,8 +28,8 @@ public actor LiveTimingSignalRClient: LiveTimingService {
             .withUrl(url: url, options: connectionOptions)
             .withAutomaticReconnect(retryDelays: [0, 2, 10, 30])
             .withHubProtocol(hubProtocol: .json)
-            .withLogLevel(logLevel: .information)
-            .withServerTimeout(serverTimeout: 30)
+            .withLogLevel(logLevel: .debug)
+            .withServerTimeout(serverTimeout: 3000)
             .build()
         var configuredLogger = logger ?? Logger(label: "laptimes.signalr.client")
         configuredLogger[metadataKey: "component"] = .string("signalr-client")
@@ -74,7 +74,11 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                     try await connection.start()
                     self.logger.info("SignalR connection started.")
 
-                    let topics = Topic.allCases.compactMap { $0.rawValue }
+                    // Keep one subscription shape: Position.z uses a raw string payload and
+                    // causes argument type mismatch in SignalRClient's typed on(...) bridge.
+                    let topics = Topic.allCases
+                        .filter { $0 != .positionZ }
+                        .map(\.rawValue)
                     self.logger.info(
                         "Subscribing to SignalR topics.",
                         metadata: [

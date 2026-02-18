@@ -36,7 +36,13 @@ public struct PositionZ: Codable, Sendable {
                     self.position = []
                 }
             } catch {
-                self.position = []
+                throw DecodingError.dataCorrupted(
+                    .init(
+                        codingPath: container.codingPath,
+                        debugDescription: "Failed to decode decompressed Position.z payload.",
+                        underlyingError: error
+                    )
+                )
             }
         }
     }

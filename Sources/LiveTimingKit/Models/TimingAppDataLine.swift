@@ -31,6 +31,19 @@ public enum TimingAppDataLineStint: Codable, Sendable {
             return
         }
 
+        if let single = try? container.decode(LineStint.self),
+           single.lapFlags != nil ||
+           single.compound != nil ||
+           single.new != nil ||
+           single.tyresNotChanged != nil ||
+           single.totalLaps != nil ||
+           single.startLaps != nil ||
+           single.lapTime != nil ||
+           single.lapNumber != nil {
+            self = .array([single])
+            return
+        }
+
         if container.decodeNil() {
             self = .array([])
             return

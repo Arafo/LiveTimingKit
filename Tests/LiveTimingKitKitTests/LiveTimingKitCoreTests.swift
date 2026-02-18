@@ -29,6 +29,59 @@ final class LiveTimingKitCoreTests: XCTestCase {
         XCTAssertEqual(current.kf, true)
     }
 
+    func testTimingAppDataDecodesSingleStintObjectAsArray() throws {
+        let json = """
+        {
+          "Lines": {
+            "10": {
+              "Stints": {
+                "Compound": "SOFT",
+                "TotalLaps": 9
+              }
+            }
+          }
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(TimingAppData.self, from: json)
+
+        guard case let .array(stints)? = decoded.lines["10"]?.stints else {
+            XCTFail("Expected Stints to decode as array")
+            return
+        }
+
+        XCTAssertEqual(stints.count, 1)
+        XCTAssertEqual(stints.first?.compound, .soft)
+        XCTAssertEqual(stints.first?.totalLaps, 9)
+    }
+
+    func testTimingAppDataDecodesStintsDictionary() throws {
+        let json = """
+        {
+          "Lines": {
+            "10": {
+              "Stints": {
+                "0": {
+                  "Compound": "MEDIUM",
+                  "TotalLaps": 12
+                }
+              }
+            }
+          }
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(TimingAppData.self, from: json)
+
+        guard case let .dictionary(stints)? = decoded.lines["10"]?.stints else {
+            XCTFail("Expected Stints to decode as dictionary")
+            return
+        }
+
+        XCTAssertEqual(stints["0"]?.compound, .medium)
+        XCTAssertEqual(stints["0"]?.totalLaps, 12)
+    }
+
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(

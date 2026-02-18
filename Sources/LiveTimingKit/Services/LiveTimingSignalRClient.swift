@@ -24,16 +24,17 @@ public actor LiveTimingSignalRClient: LiveTimingService {
         }
 
         self.hubURL = url
+        var configuredLogger = logger ?? Logger(label: "laptimes.signalr.client")
+        configuredLogger[metadataKey: "component"] = .string("signalr-client")
+        self.logger = configuredLogger
         self.connection = HubConnectionBuilder()
             .withUrl(url: url, options: connectionOptions)
             .withAutomaticReconnect(retryDelays: [0, 2, 10, 30])
             .withHubProtocol(hubProtocol: .json)
             .withLogLevel(logLevel: .debug)
+            .withLogHandler(logHandler: LiveTimingSignalRLogHandler(logger: configuredLogger))
             .withServerTimeout(serverTimeout: 3000)
             .build()
-        var configuredLogger = logger ?? Logger(label: "laptimes.signalr.client")
-        configuredLogger[metadataKey: "component"] = .string("signalr-client")
-        self.logger = configuredLogger
         self.eventProcessor = LiveTimingDefaultEventProcessor()
     }
     

@@ -18,6 +18,10 @@ let package = Package(
             revision: "8b2988b954b6ab2f70070564dd8ee79c1b9fd98d"
         ),
         .package(
+            url: "https://github.com/apple/swift-log.git",
+            from: "1.6.4"
+        ),
+        .package(
             url: "https://github.com/tsolomko/SWCompression.git", 
             from: "4.8.6"
         ),
@@ -27,6 +31,7 @@ let package = Package(
             name: "LiveTimingKit",
             dependencies: [
                 .product(name: "SignalRClient", package: "signalr-client-swift"),
+                .product(name: "Logging", package: "swift-log"),
                 .product(name: "SWCompression", package: "SWCompression")
             ]),
         .testTarget(

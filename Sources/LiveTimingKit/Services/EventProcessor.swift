@@ -61,7 +61,6 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
     }
 
     public func process(event: RawEvent) async throws {
-        //print("*** - Parsing event \(event.topic)")
         switch Topic(rawValue: event.topic) {
         case .timingData:
             let timingData = try event.payload.to(TimingData.self, encoder: encoder, decoder: decoder)

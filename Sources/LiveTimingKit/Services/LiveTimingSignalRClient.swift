@@ -28,8 +28,8 @@ public actor LiveTimingSignalRClient: LiveTimingService {
             .withUrl(url: url, options: connectionOptions)
             .withAutomaticReconnect(retryDelays: [0, 2, 10, 30])
             .withHubProtocol(hubProtocol: .json)
-            .withLogLevel(logLevel: .information)
-            .withServerTimeout(serverTimeout: 30)
+            .withLogLevel(logLevel: .debug)
+            .withServerTimeout(serverTimeout: 3000)
             .build()
         var configuredLogger = logger ?? Logger(label: "laptimes.signalr.client")
         configuredLogger[metadataKey: "component"] = .string("signalr-client")
@@ -46,7 +46,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                 ])
                 let closeLogger = self.logger
 
-                await connection.on("feed") { @Sendable (id: String, data: AnyCodable/*[String: AnyCodable]*/, time: String) in
+                await connection.on("feed") { @Sendable (id: String, data: AnyCodable, time: String) in
                     await self.handleFeed(
                         topic: id,
                         payload: data,
@@ -74,7 +74,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                     try await connection.start()
                     self.logger.info("SignalR connection started.")
 
-                    let topics = Topic.allCases.compactMap { $0.rawValue }
+                    let topics = Topic.allCases.map(\.rawValue)
                     self.logger.info(
                         "Subscribing to SignalR topics.",
                         metadata: [

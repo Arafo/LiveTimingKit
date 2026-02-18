@@ -15,9 +15,8 @@ public struct PositionZ: Codable, Sendable {
     public init(from decoder: any Decoder) throws {
         if let container = try? decoder.container(keyedBy: CodingKeys.self) {
             self.position = try container.decode([PositionData].self, forKey: .position)
-                    } else {
+        } else {
             let container = try decoder.singleValueContainer()
-            
             let encodedData = try container.decode(String.self)
 
             guard let decodedData = Data(base64Encoded: encodedData) else {
@@ -26,9 +25,10 @@ public struct PositionZ: Codable, Sendable {
                     debugDescription: "Position.z payload is not valid base64."
                 )
             }
+
             let decompressedData = try Deflate.decompress(data: decodedData)
             let decompressedString = String(data: decompressedData, encoding: .utf8)
-            
+
             do {
                 if let dict = try decompressedString?.to(PositionZ.self, decoder: JSONDecoder()) {
                     self.position = dict.position
@@ -36,7 +36,6 @@ public struct PositionZ: Codable, Sendable {
                     self.position = []
                 }
             } catch {
-                print("*** \(error)")
                 self.position = []
             }
         }

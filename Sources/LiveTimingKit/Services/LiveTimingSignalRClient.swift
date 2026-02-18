@@ -46,7 +46,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                 ])
                 let closeLogger = self.logger
 
-                await connection.on("feed") { @Sendable (id: String, data: AnyCodable/*[String: AnyCodable]*/, time: String) in
+                await connection.on("feed") { @Sendable (id: String, data: AnyCodable, time: String) in
                     await self.handleFeed(
                         topic: id,
                         payload: data,
@@ -74,11 +74,7 @@ public actor LiveTimingSignalRClient: LiveTimingService {
                     try await connection.start()
                     self.logger.info("SignalR connection started.")
 
-                    // Keep one subscription shape: Position.z uses a raw string payload and
-                    // causes argument type mismatch in SignalRClient's typed on(...) bridge.
-                    let topics = Topic.allCases
-                        .filter { $0 != .positionZ }
-                        .map(\.rawValue)
+                    let topics = Topic.allCases.map(\.rawValue)
                     self.logger.info(
                         "Subscribing to SignalR topics.",
                         metadata: [

@@ -1,5 +1,5 @@
 {
-  "originHash" : "13591ec996e65d941a64f2c8ae20078981330837cb2105bbe306922cc0929832",
+  "originHash" : "22f8f89380d8ddbe6e62658ba59c65ed210f48c8ed29274d45c3f304ec07af98",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "cdcdc5177ad536cfb11b95c620f926a81014b7fe",
         "version" : "2.0.4"
+      }
+    },
+    {
+      "identity" : "livetimingmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Arafo/LiveTimingModels.git",
+      "state" : {
+        "revision" : "761912ad6b6391ebe7779abc7efa657c84376576",
+        "version" : "0.1.0"
       }
     },
     {

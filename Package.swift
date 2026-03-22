@@ -22,8 +22,8 @@ let package = Package(
             from: "1.6.4"
         ),
         .package(
-            url: "https://github.com/tsolomko/SWCompression.git", 
-            from: "4.8.6"
+            url: "https://github.com/Arafo/LiveTimingModels.git",
+            from: "0.1.0"
         ),
     ],
     targets: [
@@ -32,7 +32,7 @@ let package = Package(
             dependencies: [
                 .product(name: "SignalRClient", package: "signalr-client-swift"),
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "SWCompression", package: "SWCompression")
+                .product(name: "LiveTimingModels", package: "LiveTimingModels"),
             ]),
         .testTarget(
             name: "LiveTimingKitTests",

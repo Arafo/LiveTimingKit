@@ -1,5 +1,6 @@
 import XCTest
 @testable import LiveTimingKit
+@testable import LiveTimingModels
 
 final class LiveTimingKitCoreTests: XCTestCase {
     func testTimingDataMergeUpdatesExistingLineAndAddsNewLine() {

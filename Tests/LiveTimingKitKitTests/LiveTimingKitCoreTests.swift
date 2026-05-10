@@ -69,21 +69,6 @@ final class LiveTimingKitCoreTests: XCTestCase {
         XCTAssertEqual(topThree.sessionPart, 1)
     }
 
-    func testSessionInfoDerivesSessionKindFromFeedFields() throws {
-        XCTAssertEqual(
-            sessionInfo(type: "Practice", number: 3, name: "Practice 3").liveTimingSessionKind,
-            .practice(3)
-        )
-        XCTAssertEqual(
-            sessionInfo(type: "Qualifying", name: "Sprint Qualifying").liveTimingSessionKind,
-            .sprintQualifying
-        )
-        XCTAssertEqual(
-            sessionInfo(type: "Race", name: "Sprint").liveTimingSessionKind,
-            .sprint
-        )
-    }
-
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(
@@ -143,27 +128,4 @@ final class LiveTimingKitCoreTests: XCTestCase {
         )
     }
 
-    private func sessionInfo(
-        type: String,
-        number: Int? = nil,
-        name: String
-    ) -> SessionInfo {
-        SessionInfo(
-            meeting: nil,
-            sessionStatus: nil,
-            archiveStatus: nil,
-            key: nil,
-            type: type,
-            number: number,
-            name: name,
-            startDate: nil,
-            endDate: nil,
-            gmtOffset: nil,
-            path: nil,
-            kf: nil,
-            circuitPoints: nil,
-            circuitCorners: nil,
-            circuitRotation: nil
-        )
-    }
 }

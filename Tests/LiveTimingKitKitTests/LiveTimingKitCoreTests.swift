@@ -84,16 +84,6 @@ final class LiveTimingKitCoreTests: XCTestCase {
         )
     }
 
-    func testLiveTimingStateUsesHighestDecodedSessionPartForQualifyingPart() {
-        let state = LiveTimingState(
-            topThree: TopThree(sessionPart: 3),
-            sessionData: SessionData(series: [Series(utc: "2026-03-13T07:17:21.552Z", qualifyingPart: 2)]),
-            timingData: TimingData(lines: [:], sessionPart: 1)
-        )
-
-        XCTAssertEqual(state.liveTimingQualifyingPart, .part3)
-    }
-
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(

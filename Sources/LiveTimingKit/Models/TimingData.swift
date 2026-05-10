@@ -4,17 +4,25 @@ public struct TimingData: Codable, Sendable {
     public var lines: [String: TimingDataLine]
     public var withheld: Bool?
     public var kf: Bool?
+    public var sessionPart: Int?
 
-    public init(lines: [String: TimingDataLine], withheld: Bool? = nil, kf: Bool? = nil) {
+    public init(
+        lines: [String: TimingDataLine],
+        withheld: Bool? = nil,
+        kf: Bool? = nil,
+        sessionPart: Int? = nil
+    ) {
         self.lines = lines
         self.withheld = withheld
         self.kf = kf
+        self.sessionPart = sessionPart
     }
 
     enum CodingKeys: String, CodingKey {
         case lines = "Lines"
         case withheld = "Withheld"
         case kf = "_kf"
+        case sessionPart = "SessionPart"
     }
 }
 
@@ -35,5 +43,6 @@ extension TimingData {
 
         if let value = delta.withheld { withheld = value }
         if let value = delta.kf { kf = value }
+        if let value = delta.sessionPart { sessionPart = value }
     }
 }

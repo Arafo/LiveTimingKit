@@ -29,6 +29,46 @@ final class LiveTimingKitCoreTests: XCTestCase {
         XCTAssertEqual(current.kf, true)
     }
 
+    func testTimingDataMergeCarriesSessionPartBecauseQualifyingUsesItForCurrentSegment() {
+        var current = TimingData(lines: [:], sessionPart: 1)
+        let delta = TimingData(lines: [:], sessionPart: 2)
+
+        current.merge(with: delta)
+
+        XCTAssertEqual(current.sessionPart, 2)
+    }
+
+    func testDecodesQualifyingPartFromSessionDataSeries() throws {
+        let data = Data("""
+        {
+          "Series": {
+            "0": {
+              "Utc": "2026-03-13T07:17:21.552Z",
+              "QualifyingPart": 2
+            }
+          }
+        }
+        """.utf8)
+
+        let sessionData = try JSONDecoder().decode(SessionData.self, from: data)
+
+        XCTAssertEqual(sessionData.series.first?.qualifyingPart, 2)
+    }
+
+    func testDecodesSessionPartFromTimingDataAndTopThree() throws {
+        let timingData = try JSONDecoder().decode(
+            TimingData.self,
+            from: Data(#"{"SessionPart":3,"Lines":{},"Withheld":false}"#.utf8)
+        )
+        let topThree = try JSONDecoder().decode(
+            TopThree.self,
+            from: Data(#"{"SessionPart":1,"Lines":[],"Withheld":false}"#.utf8)
+        )
+
+        XCTAssertEqual(timingData.sessionPart, 3)
+        XCTAssertEqual(topThree.sessionPart, 1)
+    }
+
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(
@@ -87,4 +127,5 @@ final class LiveTimingKitCoreTests: XCTestCase {
             positionZ: nil
         )
     }
+
 }

@@ -29,6 +29,71 @@ final class LiveTimingKitCoreTests: XCTestCase {
         XCTAssertEqual(current.kf, true)
     }
 
+    func testTimingDataMergeCarriesSessionPartBecauseQualifyingUsesItForCurrentSegment() {
+        var current = TimingData(lines: [:], sessionPart: 1)
+        let delta = TimingData(lines: [:], sessionPart: 2)
+
+        current.merge(with: delta)
+
+        XCTAssertEqual(current.sessionPart, 2)
+    }
+
+    func testDecodesQualifyingPartFromSessionDataSeries() throws {
+        let data = Data("""
+        {
+          "Series": {
+            "0": {
+              "Utc": "2026-03-13T07:17:21.552Z",
+              "QualifyingPart": 2
+            }
+          }
+        }
+        """.utf8)
+
+        let sessionData = try JSONDecoder().decode(SessionData.self, from: data)
+
+        XCTAssertEqual(sessionData.series.first?.qualifyingPart, 2)
+    }
+
+    func testDecodesSessionPartFromTimingDataAndTopThree() throws {
+        let timingData = try JSONDecoder().decode(
+            TimingData.self,
+            from: Data(#"{"SessionPart":3,"Lines":{},"Withheld":false}"#.utf8)
+        )
+        let topThree = try JSONDecoder().decode(
+            TopThree.self,
+            from: Data(#"{"SessionPart":1,"Lines":[],"Withheld":false}"#.utf8)
+        )
+
+        XCTAssertEqual(timingData.sessionPart, 3)
+        XCTAssertEqual(topThree.sessionPart, 1)
+    }
+
+    func testSessionInfoDerivesSessionKindFromFeedFields() throws {
+        XCTAssertEqual(
+            sessionInfo(type: "Practice", number: 3, name: "Practice 3").liveTimingSessionKind,
+            .practice(3)
+        )
+        XCTAssertEqual(
+            sessionInfo(type: "Qualifying", name: "Sprint Qualifying").liveTimingSessionKind,
+            .sprintQualifying
+        )
+        XCTAssertEqual(
+            sessionInfo(type: "Race", name: "Sprint").liveTimingSessionKind,
+            .sprint
+        )
+    }
+
+    func testLiveTimingStateUsesHighestDecodedSessionPartForQualifyingPart() {
+        let state = LiveTimingState(
+            topThree: TopThree(sessionPart: 3),
+            sessionData: SessionData(series: [Series(utc: "2026-03-13T07:17:21.552Z", qualifyingPart: 2)]),
+            timingData: TimingData(lines: [:], sessionPart: 1)
+        )
+
+        XCTAssertEqual(state.liveTimingQualifyingPart, .part3)
+    }
+
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(
@@ -85,6 +150,30 @@ final class LiveTimingKitCoreTests: XCTestCase {
             carData: nil,
             position: nil,
             positionZ: nil
+        )
+    }
+
+    private func sessionInfo(
+        type: String,
+        number: Int? = nil,
+        name: String
+    ) -> SessionInfo {
+        SessionInfo(
+            meeting: nil,
+            sessionStatus: nil,
+            archiveStatus: nil,
+            key: nil,
+            type: type,
+            number: number,
+            name: name,
+            startDate: nil,
+            endDate: nil,
+            gmtOffset: nil,
+            path: nil,
+            kf: nil,
+            circuitPoints: nil,
+            circuitCorners: nil,
+            circuitRotation: nil
         )
     }
 }

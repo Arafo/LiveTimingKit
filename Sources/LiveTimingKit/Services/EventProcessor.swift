@@ -255,7 +255,7 @@ public actor LiveTimingDefaultEventProcessor: LiveTimingEventProcessor {
             state.sessionData = delta
 
         case .extrapolatedClock(let delta):
-            state.extrapolatedClock = .init(remaining: delta.remaining, extrapolating: delta.extrapolating)
+            state.extrapolatedClock.merge(with: delta)
 
         case .championshipPrediction(let delta):
             if var existing = state.championshipPrediction {

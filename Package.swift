@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/Arafo/signalr-client-swift",
-            revision: "8b2988b954b6ab2f70070564dd8ee79c1b9fd98d"
+            branch: "feature/preserve-negotiate-cookies"
         ),
         .package(
             url: "https://github.com/apple/swift-log.git",

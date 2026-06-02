@@ -27,8 +27,13 @@ public struct ExtrapolatedClock: Codable, Sendable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let utcString = try container.decodeIfPresent(String.self, forKey: .utc)
-        self.utc = utcString.flatMap(Self.parseUTC) ?? Date.now
-        self.hasUtc = utcString != nil
+        if let parsed = utcString.flatMap(Self.parseUTC) {
+            self.utc = parsed
+            self.hasUtc = true
+        } else {
+            self.utc = Date.now
+            self.hasUtc = false
+        }
         self.remaining = try container.decodeIfPresent(String.self, forKey: .remaining)
         self.extrapolating = try container.decodeIfPresent(Bool.self, forKey: .extrapolating)
     }
@@ -49,7 +54,7 @@ public struct ExtrapolatedClock: Codable, Sendable {
             return date
         }
         formatter.formatOptions = [.withInternetDateTime]
-        return ISO8601DateFormatter().date(from: value)
+        return formatter.date(from: value)
     }
 
     private static func formatUTC(_ date: Date) -> String {

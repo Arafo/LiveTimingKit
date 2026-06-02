@@ -97,6 +97,52 @@ final class LiveTimingKitCoreTests: XCTestCase {
         XCTAssertEqual(clock.extrapolating, true)
     }
 
+    func testExtrapolatedClockWithUnparseableUtcDoesNotMarkPresence() throws {
+        let clock = try JSONDecoder().decode(
+            ExtrapolatedClock.self,
+            from: Data(#"{"Utc":"not-a-date","Remaining":"00:10:00"}"#.utf8)
+        )
+
+        // Bad input must not masquerade as a valid clock value.
+        XCTAssertFalse(clock.hasUtc)
+        XCTAssertEqual(clock.remaining, "00:10:00")
+    }
+
+    func testTyreStintSeriesDecodesSnapshotArrayIntoKeyedShape() throws {
+        let snapshot = Data(#"{"Stints":{"44":[{"Compound":"SOFT","TotalLaps":5},{"Compound":"MEDIUM","TotalLaps":3}]}}"#.utf8)
+
+        let decoded = try JSONDecoder().decode(TyreStintSeries.self, from: snapshot)
+        XCTAssertEqual(decoded.stints["44"]?.count, 2)
+        XCTAssertEqual(decoded.stints["44"]?["1"]?.compound, .medium)
+
+        // Encodes the keyed object shape, consistent with PitStopSeries.
+        let reEncoded = try JSONSerialization.jsonObject(
+            with: try JSONEncoder().encode(decoded)
+        ) as? [String: Any]
+        let driver = (reEncoded?["Stints"] as? [String: Any])?["44"]
+        XCTAssertTrue(driver is [String: Any], "expected keyed object shape, got \(String(describing: driver))")
+    }
+
+    func testTyreStintSeriesMergeUpdatesSparseNonZeroStintInPlace() {
+        // Snapshot: driver 44 already has stints at index 0 and 1.
+        var series = decodedDelta(#"{"Stints":{"44":[{"Compound":"SOFT","TotalLaps":10},{"Compound":"MEDIUM","TotalLaps":4}]}}"#)
+
+        // Delta touches only stint index 1 with a partial field (real feed shape).
+        let delta = decodedDelta(#"{"Stints":{"44":{"1":{"TotalLaps":6}}}}"#)
+
+        series.merge(with: delta)
+
+        let stints = series.stints["44"]
+        XCTAssertEqual(stints?.count, 2, "must not append a duplicate stint")
+        XCTAssertEqual(stints?["0"]?.totalLaps, 10)         // index 0 untouched
+        XCTAssertEqual(stints?["1"]?.compound, .medium)     // preserved from snapshot
+        XCTAssertEqual(stints?["1"]?.totalLaps, 6)          // updated in place
+    }
+
+    private func decodedDelta(_ json: String) -> TyreStintSeries {
+        try! JSONDecoder().decode(TyreStintSeries.self, from: Data(json.utf8))
+    }
+
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(

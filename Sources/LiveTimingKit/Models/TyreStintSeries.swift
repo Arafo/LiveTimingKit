@@ -1,84 +1,51 @@
 import Foundation
 
-/// Keyed storage: driver number → (stint index → stint data).
-/// Using `[Int: TyreStintSeriesStint]` as the per-driver value preserves the
-/// original index from the SignalR delta so that subsequent partial updates can
-/// update the correct stint in-place instead of appending duplicates.
 public struct TyreStintSeries: Codable, Sendable {
-    public var stints: [String: [Int: TyreStintSeriesStint]]
+    public var stints: [String: [String: TyreStintSeriesStint]]
+
+    public init(stints: [String: [String: TyreStintSeriesStint]] = [:]) {
+        self.stints = stints
+    }
 
     enum CodingKeys: String, CodingKey {
         case stints = "Stints"
     }
 
-    public init(stints: [String: [Int: TyreStintSeriesStint]] = [:]) {
-        self.stints = stints
-    }
-
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        // Full snapshot arrives as [driver: [TyreStintSeriesStint]] — synthesise
-        // sequential indices 0, 1, 2 … for each driver's array.
-        if let arrayStints = try? container.decode([String: [TyreStintSeriesStint]].self, forKey: .stints) {
-            stints = Self.indexFromArray(arrayStints)
-            return
-        }
-
-        // Delta arrives as [driver: [stintIndex: TyreStintSeriesStint]] — keep
-        // the original string-key indices, converting them to Int.
-        if let keyedStints = try? container.decode([String: [String: TyreStintSeriesStint]].self, forKey: .stints) {
-            stints = Self.indexFromKeyed(keyedStints)
-            return
-        }
-
-        stints = [:]
-    }
-
-    // MARK: - Private helpers
-
-    /// Convert a plain array (snapshot) into an index-keyed dict.
-    private static func indexFromArray(
-        _ arrayStints: [String: [TyreStintSeriesStint]]
-    ) -> [String: [Int: TyreStintSeriesStint]] {
-        arrayStints.reduce(into: [:]) { result, item in
-            result[item.key] = Dictionary(
-                uniqueKeysWithValues: item.value.enumerated().map { ($0.offset, $0.element) }
-            )
-        }
-    }
-
-    /// Convert a keyed dict (delta) into an index-keyed dict, dropping entries
-    /// whose keys cannot be parsed as integers.
-    private static func indexFromKeyed(
-        _ keyedStints: [String: [String: TyreStintSeriesStint]]
-    ) -> [String: [Int: TyreStintSeriesStint]] {
-        keyedStints.reduce(into: [:]) { result, item in
-            result[item.key] = item.value.reduce(into: [:]) { acc, pair in
-                if let idx = Int(pair.key) {
-                    acc[idx] = pair.value
-                }
+        if let dict = try? container.decode([String: [String: TyreStintSeriesStint]].self, forKey: .stints) {
+            stints = dict
+        } else if let dict = try? container.decode([String: [TyreStintSeriesStint]].self, forKey: .stints) {
+            stints = dict.reduce(into: [:]) { result, pair in
+                result[pair.key] = Dictionary(
+                    uniqueKeysWithValues: pair.value.enumerated().map { (String($0.offset), $0.element) }
+                )
             }
+        } else {
+            stints = [:]
         }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(stints, forKey: .stints)
     }
 }
 
-extension TyreStintSeries {
-    public mutating func merge(with delta: TyreStintSeries) {
+public extension TyreStintSeries {
+    mutating func merge(with delta: TyreStintSeries) {
         for (driver, deltaStints) in delta.stints {
             if stints[driver] == nil {
-                // No existing data for this driver — store the delta as-is.
                 stints[driver] = deltaStints
-            } else {
-                // Update or insert each stint at its explicit index so that a
-                // partial delta (e.g. only index 1 updated) merges field-by-field
-                // rather than appending a duplicate entry.
-                for (index, deltaStint) in deltaStints {
-                    if stints[driver]?[index] != nil {
-                        stints[driver]?[index]?.merge(with: deltaStint)
-                    } else {
-                        stints[driver]?[index] = deltaStint
-                    }
+                continue
+            }
+
+            for (index, deltaStint) in deltaStints {
+                if stints[driver]?[index] != nil {
+                    stints[driver]?[index]?.merge(with: deltaStint)
+                } else {
+                    stints[driver]?[index] = deltaStint
                 }
             }
         }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "0a514288a6ec2aafd55f5530109d5753c91ba658b9573805a588f1478a6287ab",
+  "originHash" : "3330da8af4fa0954541834f8d314c3855419b5fb3692a67589ce48f02e7350eb",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -15,7 +15,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Arafo/signalr-client-swift",
       "state" : {
-        "revision" : "e1b39c0ff5830491f613502a91e853c6a47de205"
+        "revision" : "7b27fe48b1a4b77efb6423c4dbf938b9f063076a"
       }
     },
     {

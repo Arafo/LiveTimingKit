@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/Arafo/signalr-client-swift",
-            revision: "e1b39c0ff5830491f613502a91e853c6a47de205"
+            revision: "7b27fe48b1a4b77efb6423c4dbf938b9f063076a"
         ),
         .package(
             url: "https://github.com/apple/swift-log.git",

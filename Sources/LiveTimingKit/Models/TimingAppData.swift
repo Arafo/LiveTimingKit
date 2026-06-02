@@ -25,76 +25,21 @@ extension TimingAppData {
         }
     }
 
-    /// Deep-merges incoming stint data into the existing stints, preserving fields
-    /// (such as `compound`) that are absent from the delta.
-    ///
-    /// - When the delta is an `.array`, each element at the same position is merged
-    ///   field-by-field; extra delta elements beyond the existing array are appended.
-    /// - When the delta is a `.dictionary`, each key is merged individually into the
-    ///   corresponding existing key (or inserted if new).
-    /// - When there are no existing stints the delta is stored verbatim.
     private func mergeStints(
-        existing: TimingAppDataLineStint?,
-        delta: TimingAppDataLineStint
-    ) -> TimingAppDataLineStint {
-        guard let existing else { return delta }
+        existing: [String: LineStint]?,
+        delta: [String: LineStint]
+    ) -> [String: LineStint] {
+        guard var merged = existing else { return delta }
 
-        switch (existing, delta) {
-
-        case (.array(let existingArray), .array(let deltaArray)):
-            var merged = existingArray
-            for (idx, deltaStint) in deltaArray.enumerated() {
-                if idx < merged.count {
-                    merged[idx] = mergeLineStint(existing: merged[idx], delta: deltaStint)
-                } else {
-                    merged.append(deltaStint)
-                }
+        for (index, deltaStint) in delta {
+            if let existingStint = merged[index] {
+                merged[index] = mergeLineStint(existing: existingStint, delta: deltaStint)
+            } else {
+                merged[index] = deltaStint
             }
-            return .array(merged)
-
-        case (.dictionary(let existingDict), .dictionary(let deltaDict)):
-            var merged = existingDict
-            for (key, deltaStint) in deltaDict {
-                if let existingStint = merged[key] {
-                    merged[key] = mergeLineStint(existing: existingStint, delta: deltaStint)
-                } else {
-                    merged[key] = deltaStint
-                }
-            }
-            return .dictionary(merged)
-
-        // Mixed cases: delta format differs from existing — prefer the delta's
-        // representation but carry over data from the existing stints where possible.
-
-        case (.array(let existingArray), .dictionary(let deltaDict)):
-            // Build a merged dictionary, seeding from the existing array indices.
-            var merged: [String: LineStint] = Dictionary(
-                uniqueKeysWithValues: existingArray.enumerated().map { ("\($0.offset)", $0.element) }
-            )
-            for (key, deltaStint) in deltaDict {
-                if let existingStint = merged[key] {
-                    merged[key] = mergeLineStint(existing: existingStint, delta: deltaStint)
-                } else {
-                    merged[key] = deltaStint
-                }
-            }
-            return .dictionary(merged)
-
-        case (.dictionary(let existingDict), .array(let deltaArray)):
-            // Build a merged array ordered by existing dict keys.
-            let sortedKeys = existingDict.keys.sorted {
-                (Int($0) ?? Int.min) < (Int($1) ?? Int.min)
-            }
-            var existingArray = sortedKeys.compactMap { existingDict[$0] }
-            for (idx, deltaStint) in deltaArray.enumerated() {
-                if idx < existingArray.count {
-                    existingArray[idx] = mergeLineStint(existing: existingArray[idx], delta: deltaStint)
-                } else {
-                    existingArray.append(deltaStint)
-                }
-            }
-            return .array(existingArray)
         }
+
+        return merged
     }
 
     /// Merges non-nil fields from `delta` into `existing`, preserving existing values

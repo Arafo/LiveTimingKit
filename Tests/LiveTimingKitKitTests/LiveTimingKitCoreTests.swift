@@ -143,6 +143,28 @@ final class LiveTimingKitCoreTests: XCTestCase {
         try! JSONDecoder().decode(TyreStintSeries.self, from: Data(json.utf8))
     }
 
+    func testTimingAppDataMergeUpdatesSparseNonZeroStintInPlace() throws {
+        // Snapshot: car 44 has stints at index 0 and 1 (array form).
+        var current = try JSONDecoder().decode(
+            TimingAppData.self,
+            from: Data(#"{"Lines":{"44":{"Stints":[{"Compound":"SOFT","TotalLaps":10},{"Compound":"MEDIUM","TotalLaps":4}]}}}"#.utf8)
+        )
+
+        // Delta touches only stint index 1 with a partial field (keyed form).
+        let delta = try JSONDecoder().decode(
+            TimingAppData.self,
+            from: Data(#"{"Lines":{"44":{"Stints":{"1":{"TotalLaps":6}}}}}"#.utf8)
+        )
+
+        current.merge(with: delta)
+
+        let stints = current.lines["44"]?.stints
+        XCTAssertEqual(stints?.count, 2, "must not drop or duplicate a stint")
+        XCTAssertEqual(stints?["0"]?.totalLaps, 10)         // index 0 untouched
+        XCTAssertEqual(stints?["1"]?.compound, .medium)     // preserved from snapshot
+        XCTAssertEqual(stints?["1"]?.totalLaps, 6)          // updated in place
+    }
+
     func testProcessEventUpdatesHeartbeatState() async throws {
         let processor = LiveTimingDefaultEventProcessor()
         let event = RawEvent(

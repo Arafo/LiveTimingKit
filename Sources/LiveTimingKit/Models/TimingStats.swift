@@ -21,13 +21,9 @@ extension TimingStats {
 extension TimingStats {
     public mutating func merge(with delta: TimingStats) {
         for (stat, newLine) in delta.lines {
-            if var existing = lines[stat] {
-                //if let v = newLine.racingNumber { existing.racingNumber = v }
-
-                lines[stat] = existing
-            } else {
-                lines[stat] = newLine
-            }
+            // TimingStatsLine currently represents full line snapshots for each key.
+            // Replace the existing line so incoming deltas are not silently ignored.
+            lines[stat] = newLine
         }
     }
 }

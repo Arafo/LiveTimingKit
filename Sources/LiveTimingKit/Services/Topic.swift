@@ -1,4 +1,4 @@
-public enum Topic: String, Equatable, Hashable, CaseIterable, Decodable {
+public enum Topic: String, Equatable, Hashable, CaseIterable, Decodable, Sendable {
     case heartbeat = "Heartbeat"
     case carDataZ = "CarData.z"
     case positionZ = "Position.z"

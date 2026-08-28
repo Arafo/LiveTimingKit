@@ -2,6 +2,10 @@ import XCTest
 @testable import LiveTimingKit
 
 final class LiveTimingKitCoreTests: XCTestCase {
+    func testTopicConformsToSendable() {
+        assertSendable(Topic.self)
+    }
+
     func testTimingDataMergeUpdatesExistingLineAndAddsNewLine() {
         var current = TimingData(
             lines: [
@@ -253,3 +257,5 @@ final class LiveTimingKitCoreTests: XCTestCase {
     }
 
 }
+
+private func assertSendable<T: Sendable>(_: T.Type) {}

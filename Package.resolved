@@ -15,7 +15,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Arafo/signalr-client-swift",
       "state" : {
-        "revision" : "0dd5ed4ade019012fcea44f78aa79a79b254308e"
+        "revision" : "152fc368bdce37844fa34f59e67dac4f152c55a1"
       }
     },
     {
